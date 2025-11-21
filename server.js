@@ -19,12 +19,10 @@ class ActivityServer {
         this.io = socketIo(this.server, {
             cors: config.websocket.cors,
             transports: ['websocket', 'polling'],
-            allowEIO3: true
-                credentials: true
-            },
-            transports: ['websocket', 'polling']
+            allowEIO3: true,
+            credentials: true
         });
-        
+
         this.port = config.server.port;
         this.host = config.server.host;
         this.isProduction = process.env.NODE_ENV === 'production';
@@ -33,14 +31,14 @@ class ActivityServer {
             phone: new Set(),
             management: new Set()
         };
-        
+
         this.stats = {
             totalUsers: 0,
             todayCheckins: 0,
             activeHorses: 0,
             totalRedpacks: 0
         };
-        
+
         this.users = new Map();
         this.checkins = [];
         this.redpackConfig = {
@@ -48,7 +46,7 @@ class ActivityServer {
             totalBudget: 10000,
             usedBudget: 0
         };
-        
+
         this.init();
     }
 
@@ -65,7 +63,7 @@ class ActivityServer {
         this.app.use(cors());
         this.app.use(express.json());
         this.app.use(express.static(path.join(__dirname)));
-        
+
         // 日志中间件
         this.app.use((req, res, next) => {
             console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -196,10 +194,10 @@ class ActivityServer {
                     this.rooms[room].add(socket.id);
                     socket.room = room;
                     console.log(`[Socket] ${socket.id} 加入房间: ${room}`);
-                    
+
                     // 发送当前统计数据
                     socket.emit('stats-update', this.stats);
-                    
+
                     // 通知管理后台有新连接
                     this.io.to('management').emit('connection-update', {
                         room,
@@ -233,10 +231,10 @@ class ActivityServer {
             // 断开连接
             socket.on('disconnect', () => {
                 console.log(`[Socket] 连接断开: ${socket.id}`);
-                
+
                 if (socket.room && this.rooms[socket.room]) {
                     this.rooms[socket.room].delete(socket.id);
-                    
+
                     // 通知管理后台连接断开
                     this.io.to('management').emit('connection-update', {
                         room: socket.room,
@@ -255,7 +253,7 @@ class ActivityServer {
 
         // 生成红包金额
         const redpackAmount = this.generateRedpackAmount();
-        
+
         // 创建签到记录
         const checkinRecord = {
             id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
@@ -272,14 +270,14 @@ class ActivityServer {
             id: data.userId,
             name: data.userName,
             lastCheckin: checkinRecord.timestamp,
-            redpackTotal: (this.users.get(data.userId)?.redpackTotal || 0) + redpackAmount,
-            checkinCount: (this.users.get(data.userId)?.checkinCount || 0) + 1,
+            redpackTotal: (this.users.get(data.userId) && this.users.get(data.userId).redpackTotal || 0) + redpackAmount,
+            checkinCount: (this.users.get(data.userId) && this.users.get(data.userId).checkinCount || 0) + 1,
             status: 'active'
         });
 
         // 保存签到记录
         this.checkins.unshift(checkinRecord);
-        
+
         // 限制记录数量
         if (this.checkins.length > 1000) {
             this.checkins = this.checkins.slice(0, 1000);
@@ -303,7 +301,7 @@ class ActivityServer {
 
         // 通知管理后台
         this.io.to('management').emit('user-checkin', checkinRecord);
-        
+
         // 广播统计更新
         this.io.emit('stats-update', this.stats);
 
@@ -324,32 +322,32 @@ class ActivityServer {
 
         // 更新已用预算
         this.redpackConfig.usedBudget += amount;
-        
+
         return amount;
     }
 
     // 处理管理员操作
     handleAdminAction(socket, data) {
         console.log(`[管理] 管理员操作:`, data);
-        
+
         switch (data.action) {
             case 'reset-stats':
                 this.resetStats();
                 this.io.emit('stats-update', this.stats);
                 break;
-                
+
             case 'clear-users':
                 this.users.clear();
                 this.updateStats();
                 this.io.emit('stats-update', this.stats);
                 break;
-                
+
             case 'clear-checkins':
                 this.checkins = [];
                 this.updateStats();
                 this.io.emit('stats-update', this.stats);
                 break;
-                
+
             case 'broadcast-message':
                 this.io.emit('system-message', data.message);
                 break;
@@ -359,11 +357,14 @@ class ActivityServer {
     // 处理配置更新
     handleConfigUpdate(socket, config) {
         console.log(`[配置] 配置更新:`, config);
-        
+
         if (config.redpack) {
-            this.redpackConfig = { ...this.redpackConfig, ...config.redpack };
+            this.redpackConfig = {
+                ...this.redpackConfig,
+                ...config.redpack
+            };
         }
-        
+
         // 通知所有客户端配置已更新
         this.io.emit('config-updated', config);
     }
@@ -381,7 +382,7 @@ class ActivityServer {
     // 获取今日签到数
     getTodayCheckinsCount() {
         const today = new Date().toDateString();
-        return this.checkins.filter(checkin => 
+        return this.checkins.filter(checkin =>
             new Date(checkin.timestamp).toDateString() === today
         ).length;
     }
