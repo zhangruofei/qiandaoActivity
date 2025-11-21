@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>迁安农商银行 - 活动管理后台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        /* 头部导航 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 主要内容区域 */
+        .main-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* 内容区域 */
+        .content-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+        }
+
+        /* 表格样式 */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        /* 模态框 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        /* 连接状态 */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc3545;
+        }
+
+        .status-indicator.connected {
+            background: #28a745;
+        }
+
+        .status-text {
+            font-size: 0.9rem;
+        }
+
+        /* 日志区域 */
+        .log-container {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .log-entry.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .log-entry.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .log-entry.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                gap: 15px;
+            }
+
+            .nav-item {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 头部导航 -->
+    <div class="header">
+        <nav class="nav">
+            <div class="logo">🏦 迁安农商银行 - 管理后台</div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-section="dashboard">仪表盘</li>
+                <li class="nav-item" data-section="users">用户管理</li>
+                <li class="nav-item" data-section="checkins">签到记录</li>
+                <li class="nav-item" data-section="redpacks">红包管理</li>
+                <li class="nav-item" data-section="system">系统设置</li>
+            </ul>
+            <div class="connection-status">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span class="status-text" id="statusText">未连接</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="main-container">
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-number" id="totalUsers">0</div>
+                <div class="stat-label">总用户数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number" id="todayCheckins">0</div>
+                <div class="stat-label">今日签到</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🐎</div>
+                <div class="stat-number" id="activeHorses">0</div>
+                <div class="stat-label">活跃骏马</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🧧</div>
+                <div class="stat-number" id="totalRedpacks">¥0</div>
+                <div class="stat-label">红包总额</div>
+            </div>
+        </div>
+
+        <!-- 仪表盘 -->
+        <div class="content-section active" id="dashboard">
+            <div class="section-header">
+                <div class="section-title">实时监控</div>
+                <button class="btn" id="refreshBtn">刷新数据</button>
+            </div>
+            <div class="section-content">
+                <div class="form-group">
+                    <label class="form-label">系统日志</label>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">[系统] 管理后台已启动</div>
+                    </div>
+                </div>
+                <button class="btn btn-warning" id="clearLogBtn">清空日志</button>
+            </div>
+        </div>
+
+        <!-- 用户管理 -->
+        <div class="content-section" id="users">
+            <div class="section-header">
+                <div class="section-title">用户管理</div>
+                <button class="btn" id="addUserBtn">添加用户</button>
+            </div>
+            <div class="section-content">
+                <div class="table-container">
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>用户ID</th>
+                                <th>用户名</th>
+                                <th>签到时间</th>
+                                <th>红包金额</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- 动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 签到记录 -->
+        <div class="content-section" id="checkins">
+            <div class="section-header">
+                <div class="section-title">签到记录</div>
+                <button class="btn btn-success" id="exportBtn">导出记录</button>
+            </div>
+            <div class="section-content">
+                <div class="table-container">
+                    <table id="checkinsTable">
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>用户</th>
+                                <th>位置</th>
+                                <th>红包</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="checkinsTableBody">
+                            <!-- 动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 红包管理 -->
+        <div class="content-section" id="redpacks">
+            <div class="section-header">
+                <div class="section-title">红包管理</div>
+                <button class="btn" id="configRedpackBtn">配置红包</button>
+            </div>
+            <div class="section-content">
+                <div class="form-group">
+                    <label class="form-label">红包配置</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div>
+                            <label class="form-label">最小金额</label>
+                            <input type="number" class="form-input" id="minAmount" value="0.88" step="0.01">
+                        </div>
+                        <div>
+                            <label class="form-label">最大金额</label>
+                            <input type="number" class="form-input" id="maxAmount" value="28.88" step="0.01">
+                        </div>
+                        <div>
+                            <label class="form-label">总预算</label>
+                            <input type="number" class="form-input" id="totalBudget" value="10000" step="0.01">
+                        </div>
+                        <div>
+                            <label class="form-label">已发放</label>
+                            <input type="number" class="form-input" id="usedBudget" value="0" readonly>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-success" id="saveRedpackConfigBtn">保存配置</button>
+            </div>
+        </div>
+
+        <!-- 系统设置 -->
+        <div class="content-section" id="system">
+            <div class="section-header">
+                <div class="section-title">系统设置</div>
+            </div>
+            <div class="section-content">
+                <div class="form-group">
+                    <label class="form-label">Socket服务器地址</label>
+                    <input type="text" class="form-input" id="socketUrl" value="ws://localhost:3000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">活动名称</label>
+                    <input type="text" class="form-input" id="activityName" value="迁安农商银行签到活动">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">活动状态</label>
+                    <select class="form-input" id="activityStatus">
+                        <option value="active">进行中</option>
+                        <option value="paused">暂停</option>
+                        <option value="ended">已结束</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" id="saveSystemConfigBtn">保存设置</button>
+                <button class="btn btn-danger" id="resetSystemBtn">重置系统</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户编辑模态框 -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="userModalTitle">添加用户</div>
+                <button class="modal-close" id="userModalClose">&times;</button>
+            </div>
+            <form id="userForm">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" class="form-input" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">手机号</label>
+                    <input type="tel" class="form-input" id="userPhone">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-input" id="userNote">
+                </div>
+                <button type="submit" class="btn btn-success">保存</button>
+                <button type="button" class="btn" id="userFormCancel">取消</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="config.js"></script>
+    <script>
+        class ManagementSystem {
+            constructor() {
+                this.socket = null;
+                this.currentSection = 'dashboard';
+                this.users = [];
+                this.checkins = [];
+                this.stats = {
+                    totalUsers: 0,
+                    todayCheckins: 0,
+                    activeHorses: 0,
+                    totalRedpacks: 0
+                };
+                this.config = {
+                    redpack: {
+                        min: 0.88,
+                        max: 28.88,
+                        budget: 10000,
+                        used: 0
+                    },
+                    system: {
+                        socketUrl: 'ws://localhost:3000',
+                        activityName: '迁安农商银行签到活动',
+                        status: 'active'
+                    }
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.connectSocket();
+                this.loadConfig();
+                this.updateStats();
+            }
+
+            // 绑定事件
+            bindEvents() {
+                // 导航切换
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        this.switchSection(e.target.dataset.section);
+                    });
+                });
+
+                // 按钮事件
+                document.getElementById('refreshBtn').addEventListener('click', () => {
+                    this.refreshData();
+                });
+
+                document.getElementById('clearLogBtn').addEventListener('click', () => {
+                    this.clearLog();
+                });
+
+                document.getElementById('addUserBtn').addEventListener('click', () => {
+                    this.showUserModal();
+                });
+
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportData();
+                });
+
+                document.getElementById('saveRedpackConfigBtn').addEventListener('click', () => {
+                    this.saveRedpackConfig();
+                });
+
+                document.getElementById('saveSystemConfigBtn').addEventListener('click', () => {
+                    this.saveSystemConfig();
+                });
+
+                document.getElementById('resetSystemBtn').addEventListener('click', () => {
+                    this.resetSystem();
+                });
+
+                // 模态框事件
+                document.getElementById('userModalClose').addEventListener('click', () => {
+                    this.hideUserModal();
+                });
+
+                document.getElementById('userFormCancel').addEventListener('click', () => {
+                    this.hideUserModal();
+                });
+
+                document.getElementById('userForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveUser();
+                });
+            }
+
+            // 连接Socket服务器
+            connectSocket() {
+                try {
+                    // 使用动态配置连接Socket.io
+                    const socketConfig = getSocketConfig();
+                    this.socket = io(socketConfig.url, socketConfig.options);
+
+                    this.socket.on('connect', () => {
+                        this.updateConnectionStatus(true);
+                        this.addLog('Socket服务器连接成功', 'success');
+                        this.socket.emit('join-room', 'management');
+                    });
+
+                    this.socket.on('disconnect', () => {
+                        this.updateConnectionStatus(false);
+                        this.addLog('Socket服务器连接断开', 'error');
+                    });
+
+                    this.socket.on('user-checkin', (data) => {
+                        this.handleUserCheckin(data);
+                    });
+
+                    this.socket.on('stats-update', (stats) => {
+                        this.updateStats(stats);
+                    });
+
+                } catch (error) {
+                    this.updateConnectionStatus(false);
+                    this.addLog('Socket连接失败: ' + error.message, 'error');
+                    this.simulateData();
+                }
+            }
+
+            // 更新连接状态
+            updateConnectionStatus(connected) {
+                const indicator = document.getElementById('statusIndicator');
+                const text = document.getElementById('statusText');
+
+                if (connected) {
+                    indicator.classList.add('connected');
+                    text.textContent = '已连接';
+                } else {
+                    indicator.classList.remove('connected');
+                    text.textContent = '未连接';
+                }
+            }
+
+            // 切换页面
+            switchSection(section) {
+                // 更新导航状态
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+                // 更新内容区域
+                document.querySelectorAll('.content-section').forEach(sec => {
+                    sec.classList.remove('active');
+                });
+                document.getElementById(section).classList.add('active');
+
+                this.currentSection = section;
+                this.loadSectionData(section);
+            }
+
+            // 加载页面数据
+            loadSectionData(section) {
+                switch (section) {
+                    case 'users':
+                        this.loadUsers();
+                        break;
+                    case 'checkins':
+                        this.loadCheckins();
+                        break;
+                    case 'redpacks':
+                        this.loadRedpackConfig();
+                        break;
+                    case 'system':
+                        this.loadSystemConfig();
+                        break;
+                }
+            }
+
+            // 处理用户签到
+            handleUserCheckin(data) {
+                this.addLog(`用户 ${data.userName} 签到成功`, 'success');
+
+                // 添加到签到记录
+                this.checkins.unshift({
+                    id: Date.now(),
+                    userId: data.userId,
+                    userName: data.userName,
+                    timestamp: data.timestamp,
+                    location: data.location || '活动现场',
+                    redpackAmount: data.redpackAmount || 0,
+                    status: 'success'
+                });
+
+                // 更新用户列表
+                const existingUser = this.users.find(u => u.id === data.userId);
+                if (existingUser) {
+                    existingUser.lastCheckin = data.timestamp;
+                    existingUser.redpackTotal += data.redpackAmount || 0;
+                } else {
+                    this.users.push({
+                        id: data.userId,
+                        name: data.userName,
+                        phone: '',
+                        lastCheckin: data.timestamp,
+                        redpackTotal: data.redpackAmount || 0,
+                        status: 'active'
+                    });
+                }
+
+                // 更新统计
+                this.stats.totalUsers = this.users.length;
+                this.stats.todayCheckins++;
+                this.stats.activeHorses++;
+                this.stats.totalRedpacks += data.redpackAmount || 0;
+
+                this.updateStats();
+                this.refreshCurrentSection();
+            }
+
+            // 加载用户列表
+            loadUsers() {
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+
+                this.users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.name}</td>
+                        <td>${user.lastCheckin ? new Date(user.lastCheckin).toLocaleString() : '未签到'}</td>
+                        <td>¥${user.redpackTotal.toFixed(2)}</td>
+                        <td><span style="color: ${user.status === 'active' ? '#28a745' : '#dc3545'}">${user.status === 'active' ? '活跃' : '禁用'}</span></td>
+                        <td>
+                            <button class="btn" onclick="management.editUser('${user.id}')">编辑</button>
+                            <button class="btn btn-danger" onclick="management.deleteUser('${user.id}')">删除</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // 加载签到记录
+            loadCheckins() {
+                const tbody = document.getElementById('checkinsTableBody');
+                tbody.innerHTML = '';
+
+                this.checkins.forEach(checkin => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${new Date(checkin.timestamp).toLocaleString()}</td>
+                        <td>${checkin.userName}</td>
+                        <td>${checkin.location}</td>
+                        <td>¥${checkin.redpackAmount.toFixed(2)}</td>
+                        <td><span style="color: #28a745">成功</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // 显示用户模态框
+            showUserModal(userId = null) {
+                const modal = document.getElementById('userModal');
+                const title = document.getElementById('userModalTitle');
+                const form = document.getElementById('userForm');
+
+                if (userId) {
+                    const user = this.users.find(u => u.id === userId);
+                    if (user) {
+                        title.textContent = '编辑用户';
+                        document.getElementById('userName').value = user.name;
+                        document.getElementById('userPhone').value = user.phone;
+                        document.getElementById('userNote').value = user.note || '';
+                        form.dataset.userId = userId;
+                    }
+                } else {
+                    title.textContent = '添加用户';
+                    form.reset();
+                    delete form.dataset.userId;
+                }
+
+                modal.classList.add('show');
+            }
+
+            // 隐藏用户模态框
+            hideUserModal() {
+                document.getElementById('userModal').classList.remove('show');
+            }
+
+            // 保存用户
+            saveUser() {
+                const form = document.getElementById('userForm');
+                const userId = form.dataset.userId;
+                const userData = {
+                    name: document.getElementById('userName').value,
+                    phone: document.getElementById('userPhone').value,
+                    note: document.getElementById('userNote').value
+                };
+
+                if (userId) {
+                    // 编辑用户
+                    const user = this.users.find(u => u.id === userId);
+                    if (user) {
+                        Object.assign(user, userData);
+                        this.addLog(`用户 ${userData.name} 信息已更新`, 'info');
+                    }
+                } else {
+                    // 添加用户
+                    const newUser = {
+                        id: 'manual_' + Date.now(),
+                        ...userData,
+                        lastCheckin: null,
+                        redpackTotal: 0,
+                        status: 'active'
+                    };
+                    this.users.push(newUser);
+                    this.addLog(`用户 ${userData.name} 已添加`, 'success');
+                }
+
+                this.hideUserModal();
+                this.loadUsers();
+                this.updateStats();
+            }
+
+            // 编辑用户
+            editUser(userId) {
+                this.showUserModal(userId);
+            }
+
+            // 删除用户
+            deleteUser(userId) {
+                if (confirm('确定要删除这个用户吗？')) {
+                    const userIndex = this.users.findIndex(u => u.id === userId);
+                    if (userIndex > -1) {
+                        const user = this.users[userIndex];
+                        this.users.splice(userIndex, 1);
+                        this.addLog(`用户 ${user.name} 已删除`, 'info');
+                        this.loadUsers();
+                        this.updateStats();
+                    }
+                }
+            }
+
+            // 更新统计数据
+            updateStats(newStats = null) {
+                if (newStats) {
+                    this.stats = {
+                        ...this.stats,
+                        ...newStats
+                    };
+                }
+
+                document.getElementById('totalUsers').textContent = this.stats.totalUsers;
+                document.getElementById('todayCheckins').textContent = this.stats.todayCheckins;
+                document.getElementById('activeHorses').textContent = this.stats.activeHorses;
+                document.getElementById('totalRedpacks').textContent = `¥${this.stats.totalRedpacks.toFixed(2)}`;
+            }
+
+            // 添加日志
+            addLog(message, type = 'info') {
+                const logContainer = document.getElementById('logContainer');
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type}`;
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+
+                logContainer.insertBefore(logEntry, logContainer.firstChild);
+
+                // 限制日志条数
+                const logs = logContainer.querySelectorAll('.log-entry');
+                if (logs.length > 100) {
+                    logs[logs.length - 1].remove();
+                }
+            }
+
+            // 清空日志
+            clearLog() {
+                document.getElementById('logContainer').innerHTML = '';
+                this.addLog('日志已清空', 'info');
+            }
+
+            // 刷新数据
+            refreshData() {
+                this.addLog('正在刷新数据...', 'info');
+                this.refreshCurrentSection();
+
+                if (this.socket && this.socket.connected) {
+                    this.socket.emit('request-stats');
+                }
+            }
+
+            // 刷新当前页面
+            refreshCurrentSection() {
+                this.loadSectionData(this.currentSection);
+            }
+
+            // 导出数据
+            exportData() {
+                const data = {
+                    users: this.users,
+                    checkins: this.checkins,
+                    stats: this.stats,
+                    exportTime: new Date().toISOString()
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], {
+                    type: 'application/json'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `checkin_data_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.addLog('数据导出成功', 'success');
+            }
+
+            // 加载配置
+            loadConfig() {
+                const saved = localStorage.getItem('management_config');
+                if (saved) {
+                    this.config = {
+                        ...this.config,
+                        ...JSON.parse(saved)
+                    };
+                }
+            }
+
+            // 保存配置
+            saveConfig() {
+                localStorage.setItem('management_config', JSON.stringify(this.config));
+            }
+
+            // 加载红包配置
+            loadRedpackConfig() {
+                document.getElementById('minAmount').value = this.config.redpack.min;
+                document.getElementById('maxAmount').value = this.config.redpack.max;
+                document.getElementById('totalBudget').value = this.config.redpack.budget;
+                document.getElementById('usedBudget').value = this.config.redpack.used;
+            }
+
+            // 保存红包配置
+            saveRedpackConfig() {
+                this.config.redpack = {
+                    min: parseFloat(document.getElementById('minAmount').value),
+                    max: parseFloat(document.getElementById('maxAmount').value),
+                    budget: parseFloat(document.getElementById('totalBudget').value),
+                    used: parseFloat(document.getElementById('usedBudget').value)
+                };
+
+                this.saveConfig();
+                this.addLog('红包配置已保存', 'success');
+            }
+
+            // 加载系统配置
+            loadSystemConfig() {
+                document.getElementById('socketUrl').value = this.config.system.socketUrl;
+                document.getElementById('activityName').value = this.config.system.activityName;
+                document.getElementById('activityStatus').value = this.config.system.status;
+            }
+
+            // 保存系统配置
+            saveSystemConfig() {
+                this.config.system = {
+                    socketUrl: document.getElementById('socketUrl').value,
+                    activityName: document.getElementById('activityName').value,
+                    status: document.getElementById('activityStatus').value
+                };
+
+                this.saveConfig();
+                this.addLog('系统配置已保存', 'success');
+
+                // 如果Socket地址改变，重新连接
+                if (this.socket) {
+                    this.socket.disconnect();
+                    setTimeout(() => this.connectSocket(), 1000);
+                }
+            }
+
+            // 重置系统
+            resetSystem() {
+                if (confirm('确定要重置系统吗？这将清除所有数据！')) {
+                    this.users = [];
+                    this.checkins = [];
+                    this.stats = {
+                        totalUsers: 0,
+                        todayCheckins: 0,
+                        activeHorses: 0,
+                        totalRedpacks: 0
+                    };
+
+                    localStorage.removeItem('management_config');
+                    this.addLog('系统已重置', 'success');
+                    this.updateStats();
+                    this.refreshCurrentSection();
+                }
+            }
+
+            // 模拟数据（用于测试）
+            simulateData() {
+                this.addLog('启动模拟数据模式', 'info');
+
+                // 模拟用户签到
+                setInterval(() => {
+                    if (Math.random() < 0.3) {
+                        const userId = 'sim_' + Date.now();
+                        const userName = '测试用户' + Math.floor(Math.random() * 100);
+                        const redpackAmount = Math.random() * 20 + 0.88;
+
+                        this.handleUserCheckin({
+                            userId,
+                            userName,
+                            timestamp: Date.now(),
+                            location: '模拟位置',
+                            redpackAmount
+                        });
+                    }
+                }, 10000);
+            }
+        }
+
+        // 全局变量，供HTML中的onclick使用
+        let management;
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            management = new ManagementSystem();
+        });
+    </script>
+</body>
+
+</html>

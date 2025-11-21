@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>迁安农商银行 - 巨型电子屏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 视频背景 */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+
+        /* 视频加载失败时的备用背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a2e 0%, #16213e 50%, #0f3460 100%);
+            z-index: -2;
+        }
+
+        /* 星河背景动画 */
+        .starfield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+            /* 允许点击穿透到下层元素 */
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.3;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* 流星效果 */
+        .meteor {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(45deg, #fff, transparent);
+            border-radius: 50%;
+            animation: meteor 3s linear infinite;
+        }
+
+        @keyframes meteor {
+            0% {
+                transform: translateX(-100px) translateY(-100px);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(100vw) translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 品牌标识区域 */
+        .brand-section {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInUp 2s ease-out;
+        }
+
+        .brand-logo {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #FFD700, #FFA500, #FF6347);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-subtitle {
+            font-size: 1.5rem;
+            color: #87CEEB;
+            text-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
+        }
+
+        /* 活动区域 */
+        .activity-area {
+            width: 90%;
+            height: 60%;
+            /* border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px); */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 骏马容器 */
+        .horse-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .horse {
+            position: absolute;
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(45deg, #8B4513, #A0522D);
+            border-radius: 10px;
+            display: none;
+            z-index: 10;
+        }
+
+        .horse::before {
+            content: '🐎';
+            font-size: 60px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 签到统计 */
+        .stats-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-item {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* 欢迎消息 */
+        .welcome-message {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.7;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 骏马奔跑动画 */
+        @keyframes horseRun {
+            0% {
+                right: -150px;
+                transform: scaleX(1);
+            }
+
+            100% {
+                right: calc(100% + 150px);
+                transform: scaleX(-1);
+            }
+        }
+
+        .horse.running {
+            animation: horseRun 8s linear;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .brand-logo {
+                font-size: 2.5rem;
+            }
+
+            .brand-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .welcome-message {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 视频背景 -->
+    <video class="video-background" autoplay muted loop>
+        <source src="bigscreenbg.mp4" type="video/mp4">
+        <!-- 如果视频无法播放，显示备用背景 -->
+    </video>
+
+    <!-- 星河背景 -->
+    <div class="starfield" id="starfield"></div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 品牌标识区域 -->
+        <div class="brand-section">
+            <div class="brand-logo">迁安农商银行</div>
+            <div class="brand-subtitle">星河璀璨 共创未来</div>
+        </div>
+
+        <!-- 活动区域 -->
+        <div class="activity-area">
+            <!-- 骏马容器 -->
+            <div class="horse-container" id="horseContainer"></div>
+
+            <!-- 签到统计面板 -->
+            <div class="stats-panel">
+                <div class="stats-item">今日签到: <span id="todayCount">0</span> 人</div>
+                <div class="stats-item">总签到: <span id="totalCount">0</span> 人</div>
+                <div class="stats-item">在线骏马: <span id="horseCount">0</span> 匹</div>
+            </div>
+        </div>
+
+        <!-- 欢迎消息 -->
+        <div class="welcome-message">
+            扫码签到，释放您的专属骏马！
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="config.js"></script>
+    <script>
+        class BigScreen {
+            constructor() {
+                this.socket = null;
+                this.horses = [];
+                this.stats = {
+                    today: 0,
+                    total: 0,
+                    horses: 0
+                };
+                this.init();
+            }
+
+            init() {
+                this.createStarField();
+                this.createMeteors();
+                this.connectSocket();
+                this.updateStats();
+            }
+
+            // 创建星河背景
+            createStarField() {
+                const starfield = document.getElementById('starfield');
+                const starCount = 200;
+
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.width = Math.random() * 3 + 1 + 'px';
+                    star.style.height = star.style.width;
+                    star.style.animationDelay = Math.random() * 2 + 's';
+                    starfield.appendChild(star);
+                }
+            }
+
+            // 创建流星效果
+            createMeteors() {
+                setInterval(() => {
+                    if (Math.random() < 0.3) {
+                        const meteor = document.createElement('div');
+                        meteor.className = 'meteor';
+                        meteor.style.left = Math.random() * 100 + '%';
+                        meteor.style.top = Math.random() * 50 + '%';
+                        document.body.appendChild(meteor);
+
+                        setTimeout(() => {
+                            meteor.remove();
+                        }, 3000);
+                    }
+                }, 2000);
+            }
+
+            // 连接Socket服务器
+            connectSocket() {
+                try {
+                    // 使用动态配置连接Socket.io
+                    const socketConfig = getSocketConfig();
+                    this.socket = io(socketConfig.url, socketConfig.options);
+
+                    this.socket.on('connect', () => {
+                        console.log('大屏连接成功');
+                        this.socket.emit('join-room', 'bigscreen');
+                    });
+
+                    this.socket.on('user-checkin', (data) => {
+                        this.handleUserCheckin(data);
+                    });
+
+                    this.socket.on('stats-update', (stats) => {
+                        this.updateStatsDisplay(stats);
+                    });
+
+                    this.socket.on('disconnect', () => {
+                        console.log('大屏连接断开');
+                    });
+                } catch (error) {
+                    console.log('Socket连接失败，使用模拟模式');
+                    this.simulateMode();
+                }
+            }
+
+            // 处理用户签到
+            handleUserCheckin(data) {
+                console.log('用户签到:', data);
+                this.createHorse(data.userId, data.userName);
+                this.stats.today++;
+                this.stats.total++;
+                this.updateStats();
+            }
+
+            // 创建骏马
+            createHorse(userId, userName) {
+                const horse = document.createElement('div');
+                horse.className = 'horse';
+                horse.id = `horse-${userId}`;
+                horse.title = `${userName}的骏马`;
+
+                // 随机起始位置（右侧）
+                const startY = Math.random() * (window.innerHeight - 200) + 100;
+                horse.style.top = startY + 'px';
+                horse.style.right = '-150px';
+                horse.style.display = 'block';
+
+                document.getElementById('horseContainer').appendChild(horse);
+
+                // 开始奔跑动画
+                setTimeout(() => {
+                    horse.classList.add('running');
+
+                    // 动画结束后移动到随机位置
+                    setTimeout(() => {
+                        this.moveHorseToRandomPosition(horse);
+                    }, 8000);
+                }, 100);
+
+                this.horses.push({
+                    id: userId,
+                    element: horse,
+                    name: userName
+                });
+
+                this.stats.horses++;
+                this.updateStats();
+            }
+
+            // 移动骏马到随机位置
+            moveHorseToRandomPosition(horse) {
+                const container = document.querySelector('.activity-area');
+                const containerRect = container.getBoundingClientRect();
+
+                const randomX = Math.random() * (containerRect.width - 120);
+                const randomY = Math.random() * (containerRect.height - 80);
+
+                horse.style.right = 'auto';
+                horse.style.left = randomX + 'px';
+                horse.style.top = randomY + 'px';
+                horse.classList.remove('running');
+
+                // 添加悬停效果
+                horse.style.transition = 'all 0.3s ease';
+                horse.addEventListener('mouseenter', () => {
+                    horse.style.transform = 'scale(1.1)';
+                });
+                horse.addEventListener('mouseleave', () => {
+                    horse.style.transform = 'scale(1)';
+                });
+            }
+
+            // 更新统计显示
+            updateStatsDisplay(stats) {
+                if (stats) {
+                    this.stats = {
+                        ...this.stats,
+                        ...stats
+                    };
+                }
+                this.updateStats();
+            }
+
+            // 更新统计数据
+            updateStats() {
+                document.getElementById('todayCount').textContent = this.stats.today;
+                document.getElementById('totalCount').textContent = this.stats.total;
+                document.getElementById('horseCount').textContent = this.stats.horses;
+            }
+
+            // 模拟模式（用于测试）
+            simulateMode() {
+                console.log('启动模拟模式');
+                setInterval(() => {
+                    if (Math.random() < 0.2) {
+                        const userId = 'sim_' + Date.now();
+                        const userName = '测试用户' + Math.floor(Math.random() * 100);
+                        this.handleUserCheckin({
+                            userId,
+                            userName
+                        });
+                    }
+                }, 5000);
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            new BigScreen();
+        });
+    </script>
+</body>
+
+</html>

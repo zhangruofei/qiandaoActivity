@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>迁安农商银行 - 签到有礼</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 头部区域 */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* 签到卡片 */
+        .checkin-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 350px;
+            width: 100%;
+            margin-bottom: 20px;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .checkin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .checkin-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .checkin-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .checkin-desc {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 二维码扫描区域 */
+        .qr-scanner {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 350px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .qr-scanner.active {
+            display: block;
+        }
+
+        #qr-video {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .qr-tips {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        /* 红包弹窗 */
+        .redpack-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .redpack-modal.show {
+            display: flex;
+        }
+
+        .redpack-content {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+            max-width: 300px;
+            width: 90%;
+            position: relative;
+            animation: redpackShow 0.5s ease-out;
+        }
+
+        @keyframes redpackShow {
+            from {
+                opacity: 0;
+                transform: scale(0.5) rotate(-10deg);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .redpack-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .redpack-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .redpack-message {
+            font-size: 1rem;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+
+        .redpack-close {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .redpack-close:hover {
+            background: white;
+            color: #ff6b6b;
+        }
+
+        /* 状态提示 */
+        .status-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1rem;
+            z-index: 999;
+            display: none;
+        }
+
+        .status-message.show {
+            display: block;
+            animation: fadeInOut 2s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* 签到成功状态 */
+        .success-state {
+            display: none;
+        }
+
+        .success-state.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 1.5rem;
+            color: #4CAF50;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .success-desc {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        /* 底部信息 */
+        .footer {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .checkin-card {
+                padding: 25px 20px;
+                margin: 0 10px 20px;
+            }
+
+            .checkin-icon {
+                font-size: 3rem;
+            }
+
+            .checkin-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 头部 -->
+    <div class="header">
+        <h1>🏦 迁安农商银行</h1>
+        <p>签到有礼，骏马奔腾</p>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="main-content">
+        <!-- 签到卡片 -->
+        <div class="checkin-card" id="checkinCard">
+            <div class="checkin-icon">📱</div>
+            <div class="checkin-title">扫码签到</div>
+            <div class="checkin-desc">扫描二维码完成签到，获得专属红包奖励，释放您的电子骏马！</div>
+            <button class="btn" id="startScanBtn">开始扫码签到</button>
+            <button class="btn" id="manualCheckinBtn"
+                style="background: linear-gradient(45deg, #28a745, #20c997);">手动签到（测试）</button>
+        </div>
+
+        <!-- 二维码扫描区域 -->
+        <div class="qr-scanner" id="qrScanner">
+            <video id="qr-video" autoplay muted playsinline></video>
+            <div class="qr-tips">请将二维码对准摄像头扫描</div>
+            <button class="btn" id="stopScanBtn"
+                style="background: linear-gradient(45deg, #dc3545, #c82333);">停止扫描</button>
+        </div>
+
+        <!-- 签到成功状态 -->
+        <div class="checkin-card success-state" id="successState">
+            <div class="success-icon">✅</div>
+            <div class="success-title">签到成功！</div>
+            <div class="success-desc">您的专属骏马已在大屏上奔腾，红包奖励已发放！</div>
+            <button class="btn" id="resetBtn">重新签到</button>
+        </div>
+    </div>
+
+    <!-- 红包弹窗 -->
+    <div class="redpack-modal" id="redpackModal">
+        <div class="redpack-content">
+            <div class="redpack-icon">🧧</div>
+            <div class="redpack-amount" id="redpackAmount">¥0.00</div>
+            <div class="redpack-message">恭喜获得签到红包！</div>
+            <button class="redpack-close" id="redpackClose">领取红包</button>
+        </div>
+    </div>
+
+    <!-- 状态提示 -->
+    <div class="status-message" id="statusMessage"></div>
+
+    <!-- 底部 -->
+    <div class="footer">
+        <p>© 2024 迁安农商银行 版权所有</p>
+    </div>
+
+    <!-- 引入必要的库 -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+    <script>
+        class PhoneApp {
+            constructor() {
+                this.socket = null;
+                this.isScanning = false;
+                this.stream = null;
+                this.userId = this.generateUserId();
+                this.userName = this.generateUserName();
+                this.isCheckedIn = false;
+
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.connectSocket();
+            }
+
+            // 生成用户ID
+            generateUserId() {
+                return 'user_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+            }
+
+            // 生成用户名
+            generateUserName() {
+                const names = ['张三', '李四', '王五', '赵六', '钱七', '孙八', '周九', '吴十'];
+                return names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 100);
+            }
+
+            // 绑定事件
+            bindEvents() {
+                document.getElementById('startScanBtn').addEventListener('click', () => {
+                    this.startQRScan();
+                });
+
+                document.getElementById('stopScanBtn').addEventListener('click', () => {
+                    this.stopQRScan();
+                });
+
+                document.getElementById('manualCheckinBtn').addEventListener('click', () => {
+                    this.manualCheckin();
+                });
+
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    this.resetApp();
+                });
+
+                document.getElementById('redpackClose').addEventListener('click', () => {
+                    this.closeRedpack();
+                });
+            }
+
+            // 连接Socket服务器
+            connectSocket() {
+                try {
+                    // 使用动态配置连接Socket.io
+                    const socketConfig = getSocketConfig();
+                    this.socket = io(socketConfig.url, socketConfig.options);
+
+                    this.socket.on('connect', () => {
+                        console.log('手机端连接成功');
+                        this.socket.emit('join-room', 'phone');
+                    });
+
+                    this.socket.on('checkin-success', (data) => {
+                        this.handleCheckinSuccess(data);
+                    });
+
+                    this.socket.on('disconnect', () => {
+                        console.log('手机端连接断开');
+                    });
+                } catch (error) {
+                    console.log('Socket连接失败，使用离线模式');
+                }
+            }
+
+            // 开始二维码扫描
+            async startQRScan() {
+                try {
+                    this.stream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'environment'
+                        }
+                    });
+
+                    const video = document.getElementById('qr-video');
+                    video.srcObject = this.stream;
+
+                    document.getElementById('checkinCard').style.display = 'none';
+                    document.getElementById('qrScanner').classList.add('active');
+
+                    this.isScanning = true;
+                    this.scanQRCode();
+
+                } catch (error) {
+                    console.error('摄像头访问失败:', error);
+                    this.showMessage('摄像头访问失败，请检查权限设置');
+                }
+            }
+
+            // 停止二维码扫描
+            stopQRScan() {
+                this.isScanning = false;
+
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                    this.stream = null;
+                }
+
+                document.getElementById('qrScanner').classList.remove('active');
+                document.getElementById('checkinCard').style.display = 'block';
+            }
+
+            // 扫描二维码
+            scanQRCode() {
+                if (!this.isScanning) return;
+
+                const video = document.getElementById('qr-video');
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.height = video.videoHeight;
+                    canvas.width = video.videoWidth;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+                    if (window.jsQR) {
+                        const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                        if (code) {
+                            console.log('扫描到二维码:', code.data);
+                            this.processQRCode(code.data);
+                            return;
+                        }
+                    }
+                }
+
+                requestAnimationFrame(() => this.scanQRCode());
+            }
+
+            // 处理二维码数据
+            processQRCode(qrData) {
+                this.stopQRScan();
+
+                // 这里可以验证二维码数据
+                if (qrData.includes('checkin') || qrData.includes('签到')) {
+                    this.performCheckin();
+                } else {
+                    this.showMessage('无效的签到二维码');
+                    setTimeout(() => {
+                        document.getElementById('checkinCard').style.display = 'block';
+                    }, 2000);
+                }
+            }
+
+            // 手动签到（测试用）
+            manualCheckin() {
+                if (this.isCheckedIn) {
+                    this.showMessage('您已经签到过了');
+                    return;
+                }
+                this.performCheckin();
+            }
+
+            // 执行签到
+            performCheckin() {
+                if (this.isCheckedIn) {
+                    this.showMessage('您已经签到过了');
+                    return;
+                }
+
+                this.showMessage('正在签到...');
+
+                const checkinData = {
+                    userId: this.userId,
+                    userName: this.userName,
+                    timestamp: Date.now(),
+                    location: '迁安农商银行活动现场'
+                };
+
+                // 发送签到数据到服务器
+                if (this.socket && this.socket.connected) {
+                    this.socket.emit('user-checkin', checkinData);
+                } else {
+                    // 离线模式，直接处理签到成功
+                    setTimeout(() => {
+                        this.handleCheckinSuccess({
+                            ...checkinData,
+                            redpackAmount: this.generateRedpackAmount()
+                        });
+                    }, 1500);
+                }
+            }
+
+            // 处理签到成功
+            handleCheckinSuccess(data) {
+                this.isCheckedIn = true;
+
+                // 隐藏签到卡片，显示成功状态
+                document.getElementById('checkinCard').style.display = 'none';
+                document.getElementById('successState').classList.add('show');
+
+                // 显示红包
+                setTimeout(() => {
+                    this.showRedpack(data.redpackAmount || this.generateRedpackAmount());
+                }, 1000);
+            }
+
+            // 生成随机红包金额
+            generateRedpackAmount() {
+                const amounts = [0.88, 1.88, 2.88, 5.88, 8.88, 10.88, 18.88, 28.88];
+                return amounts[Math.floor(Math.random() * amounts.length)];
+            }
+
+            // 显示红包
+            showRedpack(amount) {
+                document.getElementById('redpackAmount').textContent = `¥${amount.toFixed(2)}`;
+                document.getElementById('redpackModal').classList.add('show');
+
+                // 播放红包音效（如果有）
+                this.playSound('redpack');
+            }
+
+            // 关闭红包
+            closeRedpack() {
+                document.getElementById('redpackModal').classList.remove('show');
+                this.showMessage('红包已发放到您的账户！');
+            }
+
+            // 重置应用
+            resetApp() {
+                this.isCheckedIn = false;
+                this.userId = this.generateUserId();
+                this.userName = this.generateUserName();
+
+                document.getElementById('successState').classList.remove('show');
+                document.getElementById('checkinCard').style.display = 'block';
+                document.getElementById('redpackModal').classList.remove('show');
+            }
+
+            // 显示消息
+            showMessage(message) {
+                const messageEl = document.getElementById('statusMessage');
+                messageEl.textContent = message;
+                messageEl.classList.add('show');
+
+                setTimeout(() => {
+                    messageEl.classList.remove('show');
+                }, 2000);
+            }
+
+            // 播放音效
+            playSound(type) {
+                try {
+                    const audio = new Audio();
+                    if (type === 'redpack') {
+                        // 红包音效的base64数据或URL
+                        audio.src =
+                            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT';
+                    }
+                    audio.volume = 0.3;
+                    audio.play().catch(e => console.log('音效播放失败:', e));
+                } catch (error) {
+                    console.log('音效播放失败:', error);
+                }
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            new PhoneApp();
+        });
+
+        // 防止页面缩放
+        document.addEventListener('touchstart', function (event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+
+</html>
